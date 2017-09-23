@@ -1,3 +1,8 @@
-import { dupa12 } from './modules/files.js';
+import { ColorModule } from './modules/colorModule.js';
 
-console.log(dupa12(5, 3));
+document.addEventListener('DOMContentLoaded', function () {
+  var form = document.querySelector('.form');
+
+  ColorModule.init({form: form});
+  console.log(ColorModule);
+});
