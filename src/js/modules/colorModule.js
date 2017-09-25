@@ -7,7 +7,36 @@ var ColorModule = (function () {
     rgbColor.g = parseInt(color.substring(2, 4), 16);
     rgbColor.b = parseInt(color.substring(4, 6), 16);
 
-    outputs[1].lastElementChild.innerText = 'R: ' + rgbColor.r + ' G: ' + rgbColor.g + ' B: ' + rgbColor.b;
+    outputs[1].lastElementChild.innerHTML = '<span class="value-name">R: </span>' + rgbColor.r + '<span class="value-name"> G: </span>' + rgbColor.g + '<span class="value-name"> B: </span>' + rgbColor.b;
+  };
+
+  var hexToCmyk = function (color, outputs) {
+    var colorC = 0;
+    var colorM = 0;
+    var colorY = 0;
+    var colorK = 0;
+    var cmyk;
+    var minCMY;
+
+    if (rgbColor.r === 0 && rgbColor.g === 0 && rgbColor.b === 0) {
+      colorK = 1;
+      cmyk = [0, 0, 0, 1];
+    } else {
+      colorC = 1 - (rgbColor.r / 255);
+      colorM = 1 - (rgbColor.g / 255);
+      colorY = 1 - (rgbColor.b / 255);
+
+      minCMY = Math.min(colorC, Math.min(colorM, colorY));
+
+      colorC = Math.ceil((colorC - minCMY) / (1 - minCMY) * 100);
+      colorM = Math.ceil((colorM - minCMY) / (1 - minCMY) * 100);
+      colorY = Math.ceil((colorY - minCMY) / (1 - minCMY) * 100);
+      colorK = Math.ceil(minCMY * 100);
+
+      cmyk = [colorC, colorM, colorY, colorK];
+    }
+
+    outputs[0].lastElementChild.innerHTML = '<span class="value-name">C: </span>' + cmyk[0] + '%<span class="value-name"> M: </span>' + cmyk[1] + '%<span class="value-name"> Y: </span>' + cmyk[2] + '%<span class="value-name"> K: </span>' + cmyk[3] + '%';
   };
 
   var setOutputColor = function (color, outputColor) {
@@ -30,12 +59,13 @@ var ColorModule = (function () {
 
     if (isValid) {
       hexToRgb(color, outputs);
-      setOutputColor(color, outputColor)
+      hexToCmyk(color, outputs);
+      setOutputColor(color, outputColor);
       return true;
     }
   };
 
-  var prepareElements = function () {
+  var getElements = function () {
     var form = options.form;
     var colorInput = options.form.querySelector('[name="enter-color"]');
     var outputColor = options.output.querySelector('.output-color');
@@ -45,7 +75,6 @@ var ColorModule = (function () {
       e.preventDefault();
 
       testColorInput(colorInput, outputColor, outputs);
-      // this.submit();
     });
   };
 
@@ -60,7 +89,7 @@ var ColorModule = (function () {
       return false;
     }
 
-    prepareElements();
+    getElements();
   };
   return {
     init: init
